@@ -3,6 +3,7 @@ using KuroFinance.Data;
 using KuroFinance.Data.Repositories;
 using KuroFinance.Data.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.EntityFrameworkCore;
 
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
@@ -34,6 +35,16 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.AccessDeniedPath = "/Auth/Login";
         options.ExpireTimeSpan = TimeSpan.FromDays(7);
         options.SlidingExpiration = true;
+    })
+    .AddCookie("External", options =>
+    {
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+    })
+    .AddGoogle(options =>
+    {
+        options.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
+        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
+        options.SignInScheme = "External";
     });
 
 builder.Services.AddAuthorization();

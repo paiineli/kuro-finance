@@ -4,6 +4,7 @@ using KuroFinance.Data.Repositories.Interfaces;
 using KuroFinance.Web.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KuroFinance.Web.Controllers;
@@ -25,7 +26,7 @@ public class AuthController(IUserRepository userRepo) : Controller
         if (!ModelState.IsValid) return View(vm);
 
         var user = await userRepo.GetByEmailAsync(vm.Email);
-        if (user is null || !BCrypt.Net.BCrypt.Verify(vm.Password, user.PasswordHash))
+        if (user is null || user.PasswordHash is null || !BCrypt.Net.BCrypt.Verify(vm.Password, user.PasswordHash))
         {
             ModelState.AddModelError(string.Empty, "E-mail ou senha incorretos.");
             return View(vm);
@@ -78,6 +79,44 @@ public class AuthController(IUserRepository userRepo) : Controller
     {
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         return RedirectToAction("Login");
+    }
+
+    [HttpGet]
+    public IActionResult GoogleLogin()
+    {
+        var properties = new AuthenticationProperties { RedirectUri = Url.Action("GoogleCallback") };
+        return Challenge(properties, GoogleDefaults.AuthenticationScheme);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GoogleCallback()
+    {
+        var result = await HttpContext.AuthenticateAsync("External");
+        if (!result.Succeeded) return RedirectToAction("Login");
+
+        var googleId = result.Principal!.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        var email    = result.Principal!.FindFirstValue(ClaimTypes.Email)!;
+        var name     = result.Principal!.FindFirstValue(ClaimTypes.Name) ?? email;
+
+        var user = await userRepo.GetByGoogleIdAsync(googleId)
+                ?? await userRepo.GetByEmailAsync(email);
+
+        if (user is null)
+        {
+            user = new User { Id = Guid.NewGuid(), Name = name, Email = email, GoogleId = googleId };
+            await userRepo.AddAsync(user);
+            await userRepo.SaveChangesAsync();
+        }
+        else if (user.GoogleId is null)
+        {
+            user.GoogleId = googleId;
+            await userRepo.UpdateAsync(user);
+            await userRepo.SaveChangesAsync();
+        }
+
+        await HttpContext.SignOutAsync("External");
+        await SignInAsync(user);
+        return RedirectToAction("Index", "Dashboard");
     }
 
     private async Task SignInAsync(User user)
