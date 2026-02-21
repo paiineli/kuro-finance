@@ -33,7 +33,7 @@ function renderList() {
           <button class="btn btn-sm btn-outline-secondary py-0 px-1" onclick="openEdit('${cat.id}')">
             <i class="bi bi-pencil"></i>
           </button>
-          <button class="btn btn-sm btn-outline-danger py-0 px-1" onclick="openDelete('${cat.id}', ${JSON.stringify(cat.name)})">
+          <button class="btn btn-sm btn-outline-danger py-0 px-1" onclick="openDelete('${cat.id}')">
             <i class="bi bi-trash"></i>
           </button>
         </div>
@@ -133,7 +133,7 @@ function showCatError(msg) {
   el.classList.remove('d-none');
 }
 
-function openDelete(id, name) {
+function openDelete(id) {
   deletingId = id;
   deleteModal.show();
 }
