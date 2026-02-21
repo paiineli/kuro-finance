@@ -2,6 +2,8 @@
 
 *, *::before, *::after { font-family: 'JetBrains Mono', monospace; }
 
+body { display: flex; flex-direction: column; min-height: 100vh; }
+
 :root {
   --green:       #4ade80;
   --green-hover: #22c55e;
@@ -134,3 +136,18 @@
   padding: 1.5rem;
 }
 .auth-card { width: 100%; max-width: 400px; }
+
+footer {
+  margin-top: auto;
+  border-top: 1px solid var(--bs-border-color);
+  padding: 1.5rem 0;
+  text-align: center;
+  color: var(--bs-secondary-color);
+  font-size: .72rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .65rem;
+}
+footer a            { color: var(--bs-secondary-color); transition: color .15s; }
+footer a:hover      { color: var(--green); }
