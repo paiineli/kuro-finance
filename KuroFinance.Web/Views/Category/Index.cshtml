@@ -1,0 +1,85 @@
+@model IEnumerable<KuroFinance.Data.Entities.Category>
+
+<main class="container-lg py-4">
+
+  <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+    <div class="d-flex align-items-center gap-3">
+      <a class="btn btn-sm btn-outline-secondary" asp-controller="Transaction" asp-action="Index">
+        <i class="bi bi-arrow-left"></i> Transações
+      </a>
+      <h5 class="fw-bold mb-0">Categorias</h5>
+    </div>
+    <button class="btn btn-sm btn-primary"
+            data-bs-toggle="modal" data-bs-target="#catModal"
+            onclick="openCreate()">
+      <i class="bi bi-plus-lg"></i> Nova categoria
+    </button>
+  </div>
+
+  <div id="catTableContainer"></div>
+
+</main>
+
+<div class="modal fade" id="catModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="catModalTitle">Nova categoria</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+
+        <div id="catError" class="alert alert-danger py-2 small d-none"></div>
+
+        <div class="mb-3">
+          <label class="form-label small">Nome</label>
+          <input type="text" class="form-control" id="fName" maxlength="100"
+                 placeholder="Ex: Alimentação, Salário...">
+        </div>
+
+        <div class="mb-1">
+          <label class="form-label small">Tipo</label>
+          <div>
+            <div class="filter-group d-inline-flex">
+              <button type="button" class="filter-btn active" id="fTypeExpense"
+                      onclick="setModalType('Expense', this)">Despesa</button>
+              <button type="button" class="filter-btn" id="fTypeIncome"
+                      onclick="setModalType('Income', this)">Receita</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="catSubmitBtn" onclick="submitCategory()">Criar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h6 class="modal-title">Confirmar exclusão</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-secondary small">
+        Tem certeza que deseja excluir esta categoria?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-sm btn-danger" id="confirmDeleteBtn" onclick="confirmDelete()">Excluir</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+<script src="~/js/categories.js"></script>
+<script>
+  initCategories(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+    Model.Select(c => new { id = c.Id.ToString(), name = c.Name, type = c.Type.ToString() }))));
+</script>
+}

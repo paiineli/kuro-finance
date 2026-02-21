@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="KuroFinance.Data/KuroFinance.Data.csproj" />
+  <Project Path="KuroFinance.Web/KuroFinance.Web.csproj" />
+</Solution>

@@ -1,0 +1,117 @@
+@model DashboardViewModel
+@{
+    var monthNames     = new[] { "Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+                                 "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro" };
+    var isCurrentMonth = Model.Month == DateTime.Now.Month && Model.Year == DateTime.Now.Year;
+    var pieWrapClass   = Model.ExpensesByCategory.Any() ? "" : "d-none";
+    var pieEmptyClass  = Model.ExpensesByCategory.Any() ? "d-none" : "";
+}
+
+<main class="container-lg py-4">
+
+  <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <h5 class="fw-bold mb-0">Dashboard</h5>
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-sm btn-outline-secondary" onclick="navigatePrev()">
+        <i class="bi bi-chevron-left"></i>
+      </button>
+      <span class="small fw-semibold" id="dashMonthLabel" style="min-width:150px;text-align:center">
+        @monthNames[Model.Month - 1] @Model.Year
+      </span>
+      <button class="btn btn-sm btn-outline-secondary" id="dashNextBtn"
+              onclick="navigateNext()" @(isCurrentMonth ? "disabled" : "")>
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-sm-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <p class="small text-secondary mb-2">
+            <i class="bi bi-graph-up-arrow me-1"></i>Receitas
+          </p>
+          <p class="card-value text-green" id="cardIncome">
+            @Model.TotalIncome.ToString("C", new System.Globalization.CultureInfo("pt-BR"))
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-sm-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <p class="small text-secondary mb-2">
+            <i class="bi bi-graph-down-arrow me-1"></i>Despesas
+          </p>
+          <p class="card-value text-red" id="cardExpenses">
+            @Model.TotalExpenses.ToString("C", new System.Globalization.CultureInfo("pt-BR"))
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-sm-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <p class="small text-secondary mb-2">
+            <i class="bi bi-wallet2 me-1"></i>Saldo
+          </p>
+          <p class="card-value @(Model.Balance >= 0 ? "text-green" : "text-red")" id="cardBalance">
+            @Model.Balance.ToString("C", new System.Globalization.CultureInfo("pt-BR"))
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+
+    <div class="col-12 col-lg-5">
+      <div class="card h-100">
+        <div class="card-body">
+          <h6 class="card-title mb-3 small text-secondary text-uppercase" style="letter-spacing:.05em">
+            Despesas por categoria
+          </h6>
+          <div id="pieWrap" class="@pieWrapClass">
+            <canvas id="pieChart" style="max-height:260px"></canvas>
+          </div>
+          <div id="pieEmpty" class="text-center text-secondary small py-5 @pieEmptyClass">
+            <i class="bi bi-pie-chart display-6 d-block mb-2 opacity-25"></i>
+            Nenhuma despesa neste mês
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-7">
+      <div class="card h-100">
+        <div class="card-body">
+          <h6 class="card-title mb-3 small text-secondary text-uppercase" style="letter-spacing:.05em">
+            Últimos 6 meses
+          </h6>
+          <canvas id="barChart" style="max-height:260px"></canvas>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+@section Scripts {
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="~/js/dashboard.js"></script>
+<script>
+  initDashboard(
+    @Model.Month,
+    @Model.Year,
+    @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+      Model.ExpensesByCategory.Select(c => new { label = c.CategoryName, value = (double)c.Total }))),
+    @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+      Model.Last6Months.Select(m => new {
+        label    = m.Month.ToString("D2") + "/" + m.Year.ToString().Substring(2),
+        income   = (double)m.TotalIncome,
+        expenses = (double)m.TotalExpenses
+      })))
+  );
+</script>
+}

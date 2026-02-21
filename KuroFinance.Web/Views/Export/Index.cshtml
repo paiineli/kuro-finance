@@ -1,0 +1,59 @@
+@{
+    var now = DateTime.Now;
+}
+
+<main class="container-lg py-4">
+
+  <h5 class="fw-bold mb-4">Exportar</h5>
+
+  <div class="row g-4 justify-content-center">
+    <div class="col-12 col-lg-6">
+      <div class="card h-100">
+        <div class="card-body p-4 d-flex flex-column">
+
+          <h6 class="card-title mb-1">
+            <i class="bi bi-download me-2 text-green"></i>Exportar Excel
+          </h6>
+          <p class="text-secondary small mb-4">Baixe suas transações em formato .xlsx</p>
+
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="exportAll" onchange="toggleFilters(this)">
+            <label class="form-check-label small" for="exportAll">
+              Exportar todas as transações
+            </label>
+          </div>
+
+          <div id="exportFilters" class="d-flex gap-2 mb-3">
+            <select class="form-select form-select-sm" id="exportMonth" style="flex:1">
+              <option value="1">Janeiro</option><option value="2">Fevereiro</option>
+              <option value="3">Março</option><option value="4">Abril</option>
+              <option value="5">Maio</option><option value="6">Junho</option>
+              <option value="7">Julho</option><option value="8">Agosto</option>
+              <option value="9">Setembro</option><option value="10">Outubro</option>
+              <option value="11">Novembro</option><option value="12">Dezembro</option>
+            </select>
+            <select class="form-select form-select-sm" id="exportYear" style="width:100px">
+              @for (int y = now.Year; y >= now.Year - 4; y--)
+              {
+                <option value="@y">@y</option>
+              }
+            </select>
+          </div>
+
+          <button class="btn btn-primary w-100 mt-auto" id="exportBtn" onclick="downloadExcel()">
+            <i class="bi bi-download me-1"></i> Baixar Excel
+          </button>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+@section Scripts {
+<script src="~/js/export.js"></script>
+<script>
+  initExport(@now.Month);
+</script>
+}

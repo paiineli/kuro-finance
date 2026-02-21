@@ -1,0 +1,131 @@
+@model TransactionListViewModel
+@{
+    var now        = DateTime.Now;
+    var monthNames = new[] { "Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+                             "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro" };
+}
+
+<main class="container-lg py-4">
+
+  <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+    <h5 class="fw-bold mb-0">Transações</h5>
+    <div class="d-flex gap-2">
+      <a class="btn btn-sm btn-outline-secondary" asp-controller="Category" asp-action="Index">
+        <i class="bi bi-tags"></i> Categorias
+      </a>
+      @if (Model.Categories.Any())
+      {
+        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#txModal" onclick="openCreate()">
+          <i class="bi bi-plus-lg"></i> Nova transação
+        </button>
+      }
+    </div>
+  </div>
+
+  <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+    <select id="filterMonth" class="form-select form-select-sm" style="width:auto"
+            onchange="filterMonth = this.value; loadTable()">
+      @for (int i = 1; i <= 12; i++)
+      {
+        <option value="@i" selected="@(i == Model.FilterMonth)">@monthNames[i - 1]</option>
+      }
+    </select>
+    <select id="filterYear" class="form-select form-select-sm" style="width:auto"
+            onchange="filterYear = this.value; loadTable()">
+      @for (int y = now.Year; y >= now.Year - 4; y--)
+      {
+        <option value="@y" selected="@(y == Model.FilterYear)">@y</option>
+      }
+    </select>
+    <div class="filter-group">
+      <button type="button" class="filter-btn active" id="btn-all"     onclick="setType('',        this)">Todas</button>
+      <button type="button" class="filter-btn"         id="btn-income"  onclick="setType('Income',  this)">Receitas</button>
+      <button type="button" class="filter-btn"         id="btn-expense" onclick="setType('Expense', this)">Despesas</button>
+    </div>
+  </div>
+
+  <div id="txTableContainer">
+    @await Html.PartialAsync("_TransactionTable", Model)
+  </div>
+
+</main>
+
+<div class="modal fade" id="txModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="txModalTitle">Nova transação</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+
+        <div id="txError" class="alert alert-danger py-2 small d-none"></div>
+
+        <div class="mb-3">
+          <label class="form-label small">Descrição</label>
+          <input type="text" class="form-control" id="fDesc" maxlength="200" placeholder="Ex: Almoço, Salário...">
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-6">
+            <label class="form-label small">Valor (R$)</label>
+            <input type="number" class="form-control" id="fAmount" step="0.01" min="0.01" placeholder="0,00">
+          </div>
+          <div class="col-6">
+            <label class="form-label small">Tipo</label>
+            <select class="form-select" id="fType" onchange="filterCategoriesByType(this.value)">
+              <option value="Expense">Despesa</option>
+              <option value="Income">Receita</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label small">Data</label>
+          <input type="date" class="form-control" id="fDate">
+        </div>
+
+        <div class="mb-1">
+          <label class="form-label small">Categoria</label>
+          <select class="form-select" id="fCategory">
+            <option value="">Selecione...</option>
+            @foreach (var cat in Model.Categories)
+            {
+              <option value="@cat.Id" data-type="@cat.Type">@cat.Name</option>
+            }
+          </select>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="txSubmitBtn" onclick="submitTransaction()">Criar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h6 class="modal-title">Confirmar exclusão</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-secondary small">
+        Tem certeza que deseja excluir esta transação?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-sm btn-danger" id="confirmDeleteBtn" onclick="deleteTransaction()">Excluir</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+<script src="~/js/transactions.js"></script>
+<script>
+  initTransactions(@Model.FilterMonth, @Model.FilterYear);
+</script>
+}

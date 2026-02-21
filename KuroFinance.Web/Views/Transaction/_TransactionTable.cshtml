@@ -1,0 +1,77 @@
+@model TransactionListViewModel
+@{
+    var culture = new System.Globalization.CultureInfo("pt-BR");
+}
+
+@if (Model.Transactions.Any())
+{
+  <div class="d-flex justify-content-end mb-2 small">
+    <span class="text-green me-3">+@Model.TotalIncome.ToString("C", culture)</span>
+    <span class="text-red">-@Model.TotalExpenses.ToString("C", culture)</span>
+  </div>
+}
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Descrição</th>
+          <th>Categoria</th>
+          <th>Tipo</th>
+          <th class="text-end">Valor</th>
+          <th style="width:80px"></th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (!Model.Transactions.Any())
+        {
+          <tr>
+            <td colspan="6" class="text-center py-5 text-secondary">
+              @if (!Model.Categories.Any())
+              {
+                <span>
+                  Crie sua primeira <a asp-controller="Category" asp-action="Index" class="text-green">categoria</a> para adicionar transações.
+                </span>
+              }
+              else
+              {
+                <span>Nenhuma transação encontrada.</span>
+              }
+            </td>
+          </tr>
+        }
+        @foreach (var t in Model.Transactions)
+        {
+          <tr>
+            <td class="text-secondary">@t.Date.ToString("dd/MM/yyyy")</td>
+            <td class="fw-medium">@t.Description</td>
+            <td><span class="badge bg-secondary bg-opacity-25 text-body">@t.Category?.Name</span></td>
+            <td>
+              <span class="@(t.Type == TransactionType.Income ? "badge-income" : "badge-expense")">
+                @(t.Type == TransactionType.Income ? "Receita" : "Despesa")
+              </span>
+            </td>
+            <td class="text-end fw-semibold @(t.Type == TransactionType.Income ? "text-green" : "text-red")"
+                style="font-variant-numeric:tabular-nums">
+              @(t.Type == TransactionType.Income ? "+" : "-")@t.Amount.ToString("C", culture)
+            </td>
+            <td>
+              <div class="d-flex gap-1 justify-content-end">
+                <button class="btn btn-sm btn-outline-secondary py-0 px-1"
+                        onclick="openEdit('@t.Id', '@t.Description.Replace("'", "\\'")', @t.Amount.ToString("F2", System.Globalization.CultureInfo.InvariantCulture), '@t.Type', '@t.Date.ToString("yyyy-MM-dd")', '@t.CategoryId')">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger py-0 px-1"
+                        onclick="confirmDelete('@t.Id')">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

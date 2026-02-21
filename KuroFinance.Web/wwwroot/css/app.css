@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+
+*, *::before, *::after { font-family: 'JetBrains Mono', monospace; }
+
+:root {
+  --green:       #4ade80;
+  --green-hover: #22c55e;
+  --green-dim:   rgba(74, 222, 128, 0.12);
+  --red:         #f87171;
+  --red-dim:     rgba(248, 113, 113, 0.12);
+
+  --bs-body-bg:          #0a0a0a;
+  --bs-body-color:       #e5e7eb;
+  --bs-card-bg:          #111111;
+  --bs-border-color:     rgba(255, 255, 255, 0.08);
+  --bs-secondary-bg:     #161616;
+  --bs-tertiary-bg:      #0f0f0f;
+  --bs-secondary-color:  #6b7280;
+
+  --bs-danger:           #f87171;
+  --bs-danger-rgb:       248, 113, 113;
+  --bs-success:          #4ade80;
+  --bs-success-rgb:      74, 222, 128;
+}
+
+.navbar {
+  background-color: var(--bs-body-bg) !important;
+  border-bottom-color: var(--bs-border-color) !important;
+}
+.navbar-brand {
+  color: var(--bs-body-color) !important;
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: -0.3px;
+}
+.brand-finance                { color: var(--green); }
+.navbar .nav-link             { color: var(--bs-secondary-color) !important; transition: color .15s; }
+.navbar .nav-link:hover       { color: var(--green) !important; }
+.navbar .nav-link.active      { color: var(--green) !important; font-weight: 500; }
+
+.btn-primary {
+  background-color: var(--green) !important;
+  border-color:     var(--green) !important;
+  color: #000 !important;
+  font-weight: 600;
+}
+.btn-primary:hover    { background-color: var(--green-hover) !important; border-color: var(--green-hover) !important; }
+.btn-primary:disabled { opacity: .6; }
+
+.btn-outline-primary       { color: var(--green) !important; border-color: var(--green) !important; }
+.btn-outline-primary:hover { background-color: var(--green-dim) !important; color: var(--green) !important; }
+
+.btn-danger {
+  background-color: var(--red) !important;
+  border-color:     var(--red) !important;
+  color: #000 !important;
+  font-weight: 600;
+}
+.btn-danger:hover    { background-color: #ef4444 !important; border-color: #ef4444 !important; }
+.btn-danger:disabled { opacity: .6; }
+
+.btn-outline-danger       { color: var(--red) !important; border-color: var(--red) !important; }
+.btn-outline-danger:hover { background-color: var(--red-dim) !important; color: var(--red) !important; }
+
+.alert-danger {
+  background-color: var(--red-dim) !important;
+  border-color: rgba(248, 113, 113, .25) !important;
+  color: var(--red) !important;
+}
+.text-danger { color: var(--red) !important; }
+
+.text-green { color: var(--green) !important; }
+.text-red   { color: var(--red)   !important; }
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--green) !important;
+  box-shadow: 0 0 0 0.18rem rgba(74, 222, 128, 0.2) !important;
+}
+
+.card { border-color: var(--bs-border-color) !important; }
+.card-value { font-size: 1.75rem; font-weight: 700; line-height: 1.1; }
+
+.badge-income {
+  display: inline-block;
+  padding: .25em .55em;
+  font-size: .75rem;
+  border-radius: .35rem;
+  background-color: var(--green-dim);
+  color: var(--green);
+  border: 1px solid rgba(74, 222, 128, .25);
+  font-weight: 500;
+}
+.badge-expense {
+  display: inline-block;
+  padding: .25em .55em;
+  font-size: .75rem;
+  border-radius: .35rem;
+  background-color: var(--red-dim);
+  color: var(--red);
+  border: 1px solid rgba(248, 113, 113, .25);
+  font-weight: 500;
+}
+
+.table    { font-size: .85rem; }
+.table th { font-weight: 500; font-size: .78rem; letter-spacing: .03em; text-transform: uppercase; }
+
+.filter-group { display: flex; overflow: hidden; border: 1px solid var(--bs-border-color); border-radius: .375rem; }
+.filter-btn {
+  padding: .3rem .85rem;
+  font-size: .82rem;
+  background: transparent;
+  border: none;
+  color: var(--bs-secondary-color);
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.filter-btn + .filter-btn        { border-left: 1px solid var(--bs-border-color); }
+.filter-btn.active                { background-color: var(--green); color: #000; font-weight: 600; }
+.filter-btn:hover:not(.active)    { background-color: var(--bs-secondary-bg); color: var(--bs-body-color); }
+
+.auth-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+.auth-card { width: 100%; max-width: 400px; }
