@@ -6,6 +6,7 @@ public interface IUserRepository
 {
     Task<User?> GetByEmailAsync(string email);
     Task<User?> GetByGoogleIdAsync(string googleId);
+    Task<User?> GetByConfirmationTokenAsync(string token);
     Task AddAsync(User user);
     Task UpdateAsync(User user);
     Task SaveChangesAsync();

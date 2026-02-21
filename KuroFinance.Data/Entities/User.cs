@@ -7,6 +7,9 @@ public class User
     public string Email { get; set; } = string.Empty;
     public string? PasswordHash { get; set; }
     public string? GoogleId { get; set; }
+    public bool EmailConfirmed { get; set; } = false;
+    public string? EmailConfirmationToken { get; set; }
+    public DateTime? EmailConfirmationTokenExpiry { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public ICollection<Category> Categories { get; set; } = [];

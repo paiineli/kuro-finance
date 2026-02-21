@@ -6,7 +6,7 @@
 
 - **Backend:** ASP.NET Core MVC (.NET 10)
 - **Database:** PostgreSQL (Supabase) via Npgsql + EF Core
-- **Auth:** Cookie-based (BCrypt password hashing) + Google OAuth 2.0
+- **Auth:** Cookie-based (BCrypt password hashing) + Google OAuth 2.0 + e-mail confirmation (Brevo SMTP via MailKit)
 - **Frontend:** Razor Views, Bootstrap 5.3, vanilla JS (fetch API)
 - **Export:** ClosedXML (Excel)
 
@@ -65,7 +65,7 @@ kuro-finance/
 ## Data model
 
 **User**
-- Id (Guid), Name, Email, PasswordHash (nullable), GoogleId (nullable), CreatedAt
+- Id (Guid), Name, Email, PasswordHash (nullable), GoogleId (nullable), EmailConfirmed, EmailConfirmationToken (nullable), EmailConfirmationTokenExpiry (nullable), CreatedAt
 
 **Category**
 - Id (Guid), Name, Type (Income | Expense), UserId
@@ -81,11 +81,16 @@ Categories and transactions are always scoped to the authenticated user.
 
 **Requirements:** .NET 10 SDK, accessible PostgreSQL
 
-**1. Set the connection string and Google OAuth credentials via user secrets:**
+**1. Set secrets via user secrets:**
 ```bash
 dotnet user-secrets set "ConnectionStrings:DefaultConnection" "your-connection-string" --project KuroFinance.Web
 dotnet user-secrets set "Authentication:Google:ClientId" "your-client-id" --project KuroFinance.Web
 dotnet user-secrets set "Authentication:Google:ClientSecret" "your-client-secret" --project KuroFinance.Web
+dotnet user-secrets set "Email:SmtpHost" "smtp-relay.brevo.com" --project KuroFinance.Web
+dotnet user-secrets set "Email:SmtpPort" "587" --project KuroFinance.Web
+dotnet user-secrets set "Email:SmtpUser" "your-brevo-login" --project KuroFinance.Web
+dotnet user-secrets set "Email:SmtpPass" "your-brevo-smtp-password" --project KuroFinance.Web
+dotnet user-secrets set "Email:From" "KuroFinance <your-verified-sender@email.com>" --project KuroFinance.Web
 ```
 
 **2. Apply migrations:**
@@ -105,4 +110,16 @@ dotnet run --project KuroFinance.Web
 **Startup command:**
 ```
 dotnet publish "KuroFinance.Web/KuroFinance.Web.csproj" -c Release -o out && cd out && dotnet KuroFinance.Web.dll
+```
+
+**Environment variables:**
+```
+ConnectionStrings__DefaultConnection
+Authentication__Google__ClientId
+Authentication__Google__ClientSecret
+Email__SmtpHost
+Email__SmtpPort
+Email__SmtpUser
+Email__SmtpPass
+Email__From
 ```

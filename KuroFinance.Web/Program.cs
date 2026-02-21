@@ -2,6 +2,7 @@ using System.Text;
 using KuroFinance.Data;
 using KuroFinance.Data.Repositories;
 using KuroFinance.Data.Repositories.Interfaces;
+using KuroFinance.Web.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -25,6 +26,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
             errorCodesToAdd: null)));
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 

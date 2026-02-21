@@ -2,6 +2,7 @@ using System.Security.Claims;
 using KuroFinance.Data.Entities;
 using KuroFinance.Data.Repositories.Interfaces;
 using KuroFinance.Web.Models;
+using KuroFinance.Web.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
@@ -9,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace KuroFinance.Web.Controllers;
 
-public class AuthController(IUserRepository userRepo) : Controller
+public class AuthController(IUserRepository userRepo, IEmailService emailService) : Controller
 {
     [HttpGet]
     public IActionResult Login()
@@ -29,6 +30,12 @@ public class AuthController(IUserRepository userRepo) : Controller
         if (user is null || user.PasswordHash is null || !BCrypt.Net.BCrypt.Verify(vm.Password, user.PasswordHash))
         {
             ModelState.AddModelError(string.Empty, "E-mail ou senha incorretos.");
+            return View(vm);
+        }
+
+        if (!user.EmailConfirmed)
+        {
+            ModelState.AddModelError(string.Empty, "Confirme seu e-mail antes de entrar.");
             return View(vm);
         }
 
@@ -57,16 +64,45 @@ public class AuthController(IUserRepository userRepo) : Controller
             return View(vm);
         }
 
+        var confirmToken = Guid.NewGuid().ToString("N");
+
         var user = new User
         {
             Id = Guid.NewGuid(),
             Name = vm.Name.Trim(),
             Email = vm.Email.Trim().ToLower(),
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(vm.Password),
+            EmailConfirmed = false,
+            EmailConfirmationToken = confirmToken,
+            EmailConfirmationTokenExpiry = DateTime.UtcNow.AddHours(24),
             CreatedAt = DateTime.UtcNow
         };
 
         await userRepo.AddAsync(user);
+        await userRepo.SaveChangesAsync();
+
+        var confirmUrl = Url.Action("ConfirmEmail", "Auth", new { token = confirmToken }, Request.Scheme)!;
+        await emailService.SendConfirmationEmailAsync(user.Email, user.Name, confirmUrl);
+
+        TempData["Success"] = "Conta registrada! Verifique seu e-mail para ativar o acesso.";
+        return RedirectToAction("Login");
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ConfirmEmail(string token)
+    {
+        var user = await userRepo.GetByConfirmationTokenAsync(token);
+
+        if (user is null || user.EmailConfirmationTokenExpiry < DateTime.UtcNow)
+        {
+            TempData["Error"] = "Link inválido ou expirado.";
+            return RedirectToAction("Login");
+        }
+
+        user.EmailConfirmed = true;
+        user.EmailConfirmationToken = null;
+        user.EmailConfirmationTokenExpiry = null;
+        await userRepo.UpdateAsync(user);
         await userRepo.SaveChangesAsync();
 
         await SignInAsync(user);
@@ -103,13 +139,14 @@ public class AuthController(IUserRepository userRepo) : Controller
 
         if (user is null)
         {
-            user = new User { Id = Guid.NewGuid(), Name = name, Email = email, GoogleId = googleId };
+            user = new User { Id = Guid.NewGuid(), Name = name, Email = email, GoogleId = googleId, EmailConfirmed = true };
             await userRepo.AddAsync(user);
             await userRepo.SaveChangesAsync();
         }
         else if (user.GoogleId is null)
         {
             user.GoogleId = googleId;
+            user.EmailConfirmed = true;
             await userRepo.UpdateAsync(user);
             await userRepo.SaveChangesAsync();
         }
