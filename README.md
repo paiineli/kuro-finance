@@ -6,7 +6,7 @@
 
 - **Backend:** ASP.NET Core MVC (.NET 10)
 - **Database:** PostgreSQL (Supabase) via Npgsql + EF Core
-- **Auth:** Cookie-based (BCrypt password hashing)
+- **Auth:** Cookie-based (BCrypt password hashing) + Google OAuth 2.0
 - **Frontend:** Razor Views, Bootstrap 5.3, vanilla JS (fetch API)
 - **Export:** ClosedXML (Excel)
 
@@ -65,7 +65,7 @@ kuro-finance/
 ## Data model
 
 **User**
-- Id (Guid), Name, Email, PasswordHash, CreatedAt
+- Id (Guid), Name, Email, PasswordHash (nullable), GoogleId (nullable), CreatedAt
 
 **Category**
 - Id (Guid), Name, Type (Income | Expense), UserId
@@ -81,9 +81,11 @@ Categories and transactions are always scoped to the authenticated user.
 
 **Requirements:** .NET 10 SDK, accessible PostgreSQL
 
-**1. Set the connection string via user secrets:**
+**1. Set the connection string and Google OAuth credentials via user secrets:**
 ```bash
 dotnet user-secrets set "ConnectionStrings:DefaultConnection" "your-connection-string" --project KuroFinance.Web
+dotnet user-secrets set "Authentication:Google:ClientId" "your-client-id" --project KuroFinance.Web
+dotnet user-secrets set "Authentication:Google:ClientSecret" "your-client-secret" --project KuroFinance.Web
 ```
 
 **2. Apply migrations:**
