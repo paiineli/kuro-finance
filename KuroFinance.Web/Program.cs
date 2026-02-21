@@ -4,6 +4,7 @@ using KuroFinance.Data.Repositories;
 using KuroFinance.Data.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
@@ -66,6 +67,11 @@ if (!app.Environment.IsDevelopment())
 //     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 //     await db.Database.MigrateAsync();
 // }
+
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
 
 app.UseStaticFiles();
 app.UseAuthentication();
