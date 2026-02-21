@@ -104,8 +104,3 @@ dotnet run --project KuroFinance.Web
 ```
 dotnet publish "KuroFinance.Web/KuroFinance.Web.csproj" -c Release -o out && cd out && dotnet KuroFinance.Web.dll
 ```
-|---|---|
-| `ConnectionStrings__DefaultConnection` | PostgreSQL connection string |
-| `ASPNETCORE_URLS` | `http://0.0.0.0:80` |
-
-Migrations must be applied manually before the first deploy.
